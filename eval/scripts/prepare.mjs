@@ -95,6 +95,10 @@ const TARGETS = [
   { id: 'fix-plan-fresh-findings', workflow: 'peer-review', step: 'fix-plan', fixture: 'eval/fixtures/fix-plan-fresh-findings' },
   { id: 'fix-plan-boundary-preflight', workflow: 'peer-review', step: 'fix-plan', fixture: 'eval/fixtures/fix-plan-boundary-preflight' },
   { id: 'fix-plan-cause-check', workflow: 'peer-review', step: 'fix-plan', fixture: 'eval/fixtures/fix-plan-cause-check' },
+  { id: 'remediation-scope-fix-plan', workflow: 'peer-review', step: 'fix-plan', fixture: 'eval/fixtures/remediation-scope', requiredFacetKinds: ['policies', 'knowledge'] },
+  { id: 'remediation-scope-fix-plan-en', workflow: 'peer-review', step: 'fix-plan', fixture: 'eval/fixtures/remediation-scope', language: 'en', requiredFacetKinds: ['policies', 'knowledge'] },
+  { id: 'remediation-scope-write-tests', workflow: 'review-fix-takt-default', step: 'write_tests', fixture: 'eval/fixtures/remediation-scope-tests', mutable: true, requiredFacetKinds: ['policies', 'knowledge'] },
+  { id: 'remediation-scope-write-tests-en', workflow: 'review-fix-takt-default', step: 'write_tests', fixture: 'eval/fixtures/remediation-scope-tests', language: 'en', mutable: true, requiredFacetKinds: ['policies', 'knowledge'] },
   { id: 'fix-plan-blocker-absorption', workflow: 'peer-review', step: 'fix-replan', fixture: 'eval/fixtures/fix-plan-blocker-absorption', reportFile: 'fix-plan.md' },
   { id: 'fix-plan-bounded-proof', workflow: 'peer-review', step: 'fix-plan', fixture: 'eval/fixtures/fix-plan-bounded-proof' },
   {
@@ -463,6 +467,9 @@ const { invalidateGlobalConfigCache } = await import(
 );
 const { InstructionBuilder } = await import(
   pathToFileURL(join(repoRoot, 'dist/core/workflow/instruction/InstructionBuilder.js')).href
+);
+const { invalidateGlobalConfigCache } = await import(
+  pathToFileURL(join(repoRoot, 'dist/infra/config/global/globalConfigCore.js')).href
 );
 const { ReportInstructionBuilder } = await import(
   pathToFileURL(join(repoRoot, 'dist/core/workflow/instruction/ReportInstructionBuilder.js')).href
