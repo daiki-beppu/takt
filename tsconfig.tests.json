@@ -30,6 +30,8 @@
     "src/__tests__/caccia-linked.test.ts",
     "src/__tests__/caccia.integration.test.ts",
     "src/__tests__/caccia.test.ts",
+    "src/__tests__/cancellable-prompt-pipe.test.ts",
+    "src/__tests__/cancellable-prompt.test.ts",
     "src/__tests__/central-task-repository.test.ts",
     "src/__tests__/central-worker-lifecycle.integration.test.ts",
     "src/__tests__/central-worker.test.ts",
@@ -271,6 +273,7 @@
     "src/__tests__/runtime-provider-schema.test.ts",
     "src/__tests__/runtime-provider-seam.integration.test.ts",
     "src/__tests__/safeExternalErrorMessage.test.ts",
+    "src/__tests__/saveTaskFile.test.ts",
     "src/__tests__/select-menu-layout.test.ts",
     "src/__tests__/selectAndExecute-failureMode.test.ts",
     "src/__tests__/selector-guidance-resolution.test.ts",
@@ -357,6 +360,7 @@
     "src/__tests__/workflowExecutionBootstrapDirectResume.test.ts",
     "src/__tests__/workflowExecutionEvents.test.ts",
     "src/__tests__/workflowLoader.test.ts",
+    "src/__tests__/worktree-settings.test.ts",
     "vitest.config.tell-eval.ts"
   ],
   "exclude": []
