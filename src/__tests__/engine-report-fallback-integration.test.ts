@@ -74,6 +74,24 @@ describe('WorkflowEngine report fallback integration', () => {
     }
   });
 
+  it.each(['credential_binding_changed', 'session_continuation_unsupported'] as const)(
+    'aborts on terminal report failure %s without status judgment or fallback', async (failureCategory) => {
+      queueAttempt(response({ content: 'Implementation complete', sessionId: 'saved-session' }));
+      queueAttempt(response({ status: 'error', content: 'terminal report failure', error: 'terminal report failure', failureCategory }));
+      const structuredCaller: StructuredCaller = {
+        judgeStatus: vi.fn(), evaluateCondition: vi.fn(), decomposeTask: vi.fn(), requestMoreParts: vi.fn(),
+      };
+      const engine = new WorkflowEngine(workflowConfig(), tmpRoot, 'Task', {
+        projectCwd: tmpRoot, provider: 'deepseek-harness', structuredCaller,
+        reportFallbackProvider: { provider: 'codex', model: 'fallback' },
+      });
+      const state = await engine.run();
+      expect(state.status).toBe('aborted');
+      expect(runAgent).toHaveBeenCalledTimes(2);
+      expect(structuredCaller.judgeStatus).not.toHaveBeenCalled();
+    },
+  );
+
   it('should pass configured fallback provider to the final report runAgent call and write the report', async () => {
     queueAttempt(response({
       content: '[IMPLEMENT:1]\nPhase 1 output',
