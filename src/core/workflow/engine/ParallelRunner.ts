@@ -494,6 +494,7 @@ export class ParallelRunner {
       const providerInfo = this.deps.optionsBuilder.resolveStepProviderModelBeforeAutoRouting(subStep, runtime);
       validateProviderModelRequirements(providerInfo.provider, providerInfo.model, {
         modelFieldName: `Configuration error: parallel sub-step "${subStep.name}" model`,
+        modelSource: providerInfo.modelSource,
       });
       return [subStep.name, providerInfo];
     }));
@@ -567,6 +568,7 @@ export class ParallelRunner {
         : this.deps.optionsBuilder.resolveStepProviderModel(subStep, subRuntime);
       validateProviderModelRequirements(providerInfo.provider, providerInfo.model, {
         modelFieldName: `Configuration error: parallel sub-step "${subStep.name}" model`,
+        modelSource: providerInfo.modelSource,
       });
       return [subStep.name, providerInfo];
     }));
