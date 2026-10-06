@@ -51,6 +51,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Production dependencies with known vulnerabilities are updated, and the Nix dependency hash is refreshed.
 - The OpenCode real-provider E2E runs against v2 by default, and the OpenCode probe responds to streaming prompts with SSE.
 - The DeepSeek Harness SDK probe integration test allows enough shutdown and initialization time so it no longer fails under load.
+- The shared test setup yields to the event loop before each test, so a file of fully synchronous tests no longer trips Vitest's 60-second RPC timeout (`Timeout calling "onTaskUpdate"`) in CI.
 
 ## [0.68.0] - 2026-10-03
 
