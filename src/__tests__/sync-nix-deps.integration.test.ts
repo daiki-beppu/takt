@@ -28,14 +28,16 @@ function flake(fetcherVersion: number): string {
   ].join('\n');
 }
 
-// npm stand-in: `npm update` bumps node_modules/dep from 1.0.0 to 1.1.0 in the lockfile of its cwd.
+// npm stand-in: `npm update` bumps node_modules/dep from 1.0.0 to 1.1.0 in the lockfile of its cwd,
+// or leaves it as is when FAKE_NPM_NOOP is set.
 const fakeNpm = `#!/bin/sh
 printf '%s\\n' "$*" >> "$FAKE_LOG_DIR/npm-args"
+[ -n "$FAKE_NPM_NOOP" ] && exit 0
 sed 's/"version": "1.0.0"/"version": "1.1.0"/' package-lock.json > package-lock.json.tmp
 mv package-lock.json.tmp package-lock.json
 `;
 
-// nix stand-in: records what prefetch-npm-deps would receive, then prints a hash or fails.
+// nix stand-in: records what prefetch-npm-deps would receive, then prints FAKE_NIX_HASH (default: newHash) or fails.
 const fakeNix = `#!/bin/sh
 printf '%s\\n' "$*" > "$FAKE_LOG_DIR/nix-args"
 printf '%s' "$NPM_FETCHER_VERSION" > "$FAKE_LOG_DIR/nix-fetcher-version"
@@ -45,7 +47,7 @@ if [ -n "$FAKE_NIX_FAIL" ]; then
   echo "prefetch failed" >&2
   exit 1
 fi
-echo "${newHash}"
+echo "\${FAKE_NIX_HASH:-${newHash}}"
 `;
 
 describe.skipIf(process.platform === 'win32')('sync-nix-deps CLI', () => {
@@ -113,6 +115,36 @@ describe.skipIf(process.platform === 'win32')('sync-nix-deps CLI', () => {
     expect(result.stderr).toContain('changed node_modules/dep 1.0.0 -> 1.1.0');
     expect(result.stderr).toContain(`npmDepsHash: ${oldHash} -> ${newHash}`);
     expect(log('nix-fetcher-version')).toBe('2');
+    expect(repoFile('package-lock.json')).toBe(staleLock);
+    expect(repoFile('flake.nix')).toBe(flake(2));
+  });
+
+  it('exits 0 with --check when neither the lockfile nor the hash would change', () => {
+    const result = runSync(['--check'], { FAKE_NPM_NOOP: '1', FAKE_NIX_HASH: oldHash });
+
+    expect(result.status, result.stderr).toBe(0);
+    expect(result.stderr).not.toContain('package-lock.json is out of date');
+    expect(result.stderr).not.toContain('npmDepsHash:');
+    expect(repoFile('package-lock.json')).toBe(staleLock);
+    expect(repoFile('flake.nix')).toBe(flake(2));
+  });
+
+  it('exits 1 with --check when only the lockfile would change', () => {
+    const result = runSync(['--check'], { FAKE_NIX_HASH: oldHash });
+
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain('changed node_modules/dep 1.0.0 -> 1.1.0');
+    expect(result.stderr).not.toContain('npmDepsHash:');
+    expect(repoFile('package-lock.json')).toBe(staleLock);
+    expect(repoFile('flake.nix')).toBe(flake(2));
+  });
+
+  it('exits 1 with --check when only npmDepsHash would change', () => {
+    const result = runSync(['--check'], { FAKE_NPM_NOOP: '1' });
+
+    expect(result.status).toBe(1);
+    expect(result.stderr).not.toContain('package-lock.json is out of date');
+    expect(result.stderr).toContain(`npmDepsHash: ${oldHash} -> ${newHash}`);
     expect(repoFile('package-lock.json')).toBe(staleLock);
     expect(repoFile('flake.nix')).toBe(flake(2));
   });
