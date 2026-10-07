@@ -299,6 +299,7 @@
     "src/__tests__/spawnCwd.test.ts",
     "src/__tests__/status-judgment-phase-structured-caller.test.ts",
     "src/__tests__/step-executor-provider-error-retry.test.ts",
+    "src/__tests__/sync-nix-deps.test.ts",
     "src/__tests__/task-prefix-writer.test.ts",
     "src/__tests__/task-schema.test.ts",
     "src/__tests__/task.test.ts",

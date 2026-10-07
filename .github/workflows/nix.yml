@@ -16,6 +16,25 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  nix-deps-sync:
+    name: Check Nix dependencies are synced
+    if: github.event_name == 'pull_request' && startsWith(github.head_ref, 'release/')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 24.18.0
+      - run: npm install --global npm@11.16.0
+      - uses: DeterminateSystems/nix-installer-action@21a544727d0c62386e78b4befe52d19ad12692e3
+      - run: |
+          if ! node scripts/sync-nix-deps.mjs --check; then
+            echo "::error::package-lock.json or flake.nix npmDepsHash is out of sync. Run 'npm run sync:nix-deps' and commit package-lock.json and flake.nix."
+            exit 1
+          fi
+
   flake:
     name: Build and test Nix flake
     runs-on: ${{ matrix.os }}

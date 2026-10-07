@@ -24,6 +24,8 @@ If you use Nix flakes, `nix develop` opens a shell with the project Node.js runt
 nix develop
 ```
 
+Before a release, run `npm run sync:nix-deps` and commit the updated `package-lock.json` and `flake.nix`. It updates the lockfile within the ranges in `package.json` and recomputes `npmDepsHash`, so the Nix build bundles the same dependencies as `npm install`. CI runs `node scripts/sync-nix-deps.mjs --check` on release PRs (head branch `release/*`) and fails if either file is out of date.
+
 ## How to Contribute
 
 PRs that accompany an issue are especially welcome. For bug fixes and small improvements, feel free to submit a PR without waiting for a maintainer response or for discussion to conclude.

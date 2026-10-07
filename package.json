@@ -21,6 +21,7 @@
   "scripts": {
     "build": "node scripts/clean-build-output.mjs && tsc && tsc -p tsconfig.opencode-probe.json && node scripts/copy-build-assets.mjs",
     "watch": "tsc --watch",
+    "sync:nix-deps": "node scripts/sync-nix-deps.mjs",
     "analyze:usage": "node dist/commands/analyze-usage.js",
     "eval:prompts:prepare": "node eval/scripts/prepare.mjs",
     "eval:prompts:interactive-topic-boundary": "node --import tsx --test eval/asserts/interactive-topic-boundary.test.mjs eval/suite-registry.test.mjs && node eval/scripts/run-evals.mjs interactive-topic-boundary --no-cache --repeat 3",
