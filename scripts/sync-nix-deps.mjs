@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process';
-import { copyFileSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { copyFileSync, mkdtempSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -41,6 +41,17 @@ export function summarizeLockChanges(beforeLock, afterLock) {
   return lines;
 }
 
+// Write next to the target and rename over it, so an interrupted write never leaves a truncated file.
+function writeFileAtomic(path, content) {
+  const tempPath = `${path}.${process.pid}.tmp`;
+  try {
+    writeFileSync(tempPath, content);
+    renameSync(tempPath, path);
+  } finally {
+    rmSync(tempPath, { force: true });
+  }
+}
+
 function updateLock(cwd) {
   execFileSync('npm', ['update', '--package-lock-only', '--ignore-scripts'], { cwd, stdio: 'inherit' });
 }
@@ -74,7 +85,7 @@ function run(check) {
   if (!check) {
     updateLock(repoRoot);
     const updated = replaceNpmDepsHash(flake, computeHash(repoRoot, lockPath, fetcherVersion));
-    if (updated !== flake) writeFileSync(flakePath, updated);
+    if (updated !== flake) writeFileAtomic(flakePath, updated);
     return;
   }
 

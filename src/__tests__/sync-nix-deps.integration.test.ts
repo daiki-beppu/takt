@@ -1,5 +1,5 @@
 import { spawnSync } from 'node:child_process';
-import { chmodSync, copyFileSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, copyFileSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -99,6 +99,7 @@ describe.skipIf(process.platform === 'win32')('sync-nix-deps CLI', () => {
     expect(log('nix-fetcher-version')).toBe('3');
     expect(log('nix-lock')).toBe(repoFile('package-lock.json'));
     expect(repoFile('flake.nix')).toContain(`npmDepsHash = "${newHash}";`);
+    expect(readdirSync(join(root, 'repo')).filter((name) => name.endsWith('.tmp'))).toEqual([]);
   });
 
   it('exits non-zero and leaves flake.nix unchanged when the hash computation fails', () => {
